@@ -1,0 +1,82 @@
+| 種類 | Rust記法                | 意味 / 使い方                    | C / C++での類似                    |
+| -- | --------------------- | --------------------------- | ------------------------------ |
+| 1  | `fn`                  | 関数定義                        | `void func() {}`               |
+| 2  | `let`                 | 変数定義（デフォルトは不変）              | `int x = 10;`（`const`に近い）      |
+| 3  | `let mut`             | 可変変数定義                      | `int x = 10;`                  |
+| 4  | `const`               | 定数定義                        | `const int X = 5;`             |
+| 5  | `static`              | グローバル変数定義                   | `static int X = 5;`            |
+| 6  | `fn main()`           | エントリーポイント                   | `int main()`                   |
+| 7  | `println!()`          | 標準出力                        | `printf()` / `std::cout`       |
+| 8  | `print!()`            | 改行なし標準出力                    | `printf()`                     |
+| 9  | `eprintln!()`         | 標準エラー出力                     | `fprintf(stderr, …)`           |
+| 10 | `if / else`           | 条件分岐                        | 同じ                             |
+| 11 | `match`               | パターンマッチ分岐                   | `switch`に似ているがより強力             |
+| 12 | `loop`                | 無限ループ                       | `while(true)`                  |
+| 13 | `while`               | 条件付きループ                     | 同じ                             |
+| 14 | `for x in 0..10`      | 範囲ループ                       | `for (int i=0;i<10;i++)`       |
+| 15 | `break`               | ループ終了                       | 同じ                             |
+| 16 | `continue`            | 次のループへ                      | 同じ                             |
+| 17 | `return`              | 戻り値                         | 同じ                             |
+| 18 | `-> 型`                | 戻り値の型指定                     | 同じ                             |
+| 19 | `{}`                  | ブロック                        | 同じ                             |
+| 20 | `struct`              | 構造体定義                       | 同じ                             |
+| 21 | `enum`                | 列挙型                         | 同じ                             |
+| 22 | `impl`                | メソッド定義ブロック                  | `class`メソッド定義に近い               |
+| 23 | `trait`               | インターフェース                    | `abstract class` / `interface` |
+| 24 | `derive`属性            | 自動実装（例: `#[derive(Debug)]`） | C++の`operator<<`自動化に似る         |
+| 25 | `Option<T>`           | 値がある/ないを表す型                 | `std::optional<T>`             |
+| 26 | `Result<T, E>`        | 成功/失敗を表す型                   | `std::variant<T, Error>` に似る   |
+| 27 | `Some(x)` / `None`    | Optionの値                    | `optional<int>`の`has_value`など  |
+| 28 | `Ok(x)` / `Err(e)`    | Resultの値                    | C++の`expected<T,E>`に近い         |
+| 29 | `?`                   | エラー伝播演算子                    | 例外伝播 (`throw`) に似る             |
+| 30 | `unwrap()`            | 値取り出し（Noneならpanic）          | `optional.value()` に似る         |
+| 31 | `expect()`            | unwrap＋エラーメッセージ             | 同上                             |
+| 32 | `vec![]`              | 可変長配列（Vector）               | `std::vector`                  |
+| 33 | `Vec<T>`              | ベクタ型                        | `std::vector<T>`               |
+| 34 | `String`              | 文字列型                        | `std::string`                  |
+| 35 | `&str`                | 文字列スライス（参照）                 | `const char*`                  |
+| 36 | `&`                   | 参照（借用）                      | ポインタ or 参照 (`&` / `*`)         |
+| 37 | `&mut`                | 可変参照                        | `int*` に近い                     |
+| 38 | `*`                   | 参照外し（デリファレンス）               | 同じ                             |
+| 39 | `Box<T>`              | ヒープ確保スマートポインタ               | `std::unique_ptr`              |
+| 40 | `Rc<T>`               | 参照カウントスマートポインタ              | `std::shared_ptr`              |
+| 41 | `Arc<T>`              | スレッド安全な`Rc`                 | `std::shared_ptr`(atomic版)     |
+| 42 | `clone()`             | データ複製                       | `copy` / `clone`メソッド           |
+| 43 | `copy` trait          | 値コピー可能                      | C++の`copy constructor`         |
+| 44 | `move`                | 所有権の移動                      | `std::move()`                  |
+| 45 | `drop`                | 解放時の動作                      | C++のデストラクタ                     |
+| 46 | `String::from()`      | 文字列生成                       | `std::string("abc")`           |
+| 47 | `format!()`           | 文字列フォーマット                   | `sprintf()` / `std::format()`  |
+| 48 | `as`                  | 型変換                         | `static_cast`                  |
+| 49 | `usize`               | 配列インデックス用整数                 | `size_t`                       |
+| 50 | `i32`, `u32`, etc.    | 整数型                         | `int32_t`, `uint32_t`          |
+| 51 | `f64`, `f32`          | 浮動小数点型                      | `double`, `float`              |
+| 52 | `bool`                | 真偽値                         | 同じ                             |
+| 53 | `char`                | Unicode文字（4byte）            | `wchar_t`に近い                   |
+| 54 | `()`                  | 何も返さない（Unit型）               | `void`                         |
+| 55 | `mod`                 | モジュール定義                     | C/C++の`namespace`に似る           |
+| 56 | `pub`                 | 公開指定（public）                | `public`                       |
+| 57 | `use`                 | モジュール取り込み                   | `using namespace` / `#include` |
+| 58 | `crate`               | パッケージ単位                     | `ライブラリ/モジュール`                  |
+| 59 | `Cargo.toml`          | ビルド設定ファイル                   | `Makefile` + `CMakeLists.txt`  |
+| 60 | `Cargo`               | ビルドツール                      | `make` / `cmake` / `npm`       |
+| 61 | `dbg!()`              | デバッグ出力                      | `printf`デバッグ                   |
+| 62 | `assert!()`           | アサート                        | `assert()`                     |
+| 63 | `assert_eq!()`        | 等価テスト                       | `assert(a == b)`               |
+| 64 | `match _`             | パターン無視                      | `default:`                     |
+| 65 | `_`                   | 使わない変数                      | `(void)x;` に似る                 |
+| 66 | `..`                  | 範囲（0..10）                   | `for(int i=0;i<10;i++)`        |
+| 67 | `..=`                 | 範囲（含む）                      | `<=` 範囲                        |
+| 68 | `ref`                 | 借用を作る                       | C++参照取得                        |
+| 69 | `derive(Debug)`       | デバッグ表示を自動実装                 | `operator<<`定義に似る              |
+| 70 | `panic!()`            | 強制エラー終了                     | `abort()` / `throw`            |
+| 71 | `Option::unwrap_or()` | デフォルト値指定                    | `optional.value_or()`          |
+| 72 | `Vec::push()`         | 追加                          | `vector.push_back()`           |
+| 73 | `Vec::pop()`          | 末尾削除                        | `vector.pop_back()`            |
+| 74 | `Vec::len()`          | 要素数                         | `vector.size()`                |
+| 75 | `Vec::iter()`         | イテレータ生成                     | `vector.begin()`               |
+| 76 | `Iterator::map()`     | 要素変換                        | `std::transform()`             |
+| 77 | `Iterator::filter()`  | 絞り込み                        | `std::copy_if()`               |
+| 78 | `Iterator::collect()` | 収集してVecなどに                  | C++20の`ranges::to`に近い          |
+| 79 | `thread::spawn()`     | スレッド生成                      | `std::thread`                  |
+| 80 | `async / await`       | 非同期処理                       | `co_await`（C++20）              |
