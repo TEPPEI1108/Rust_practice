@@ -1,0 +1,156 @@
+use std::f64::INFINITY;
+
+/// Held-Karp (bitmask DP) to solve TSP exactly.
+/// `dist` is an n x n matrix of distances (f64).
+/// Returns (best_cost, best_path) where best_path is a cycle starting and ending at 0,
+/// e.g. [0, 2, 1, 3, 0]
+fn held_karp(dist: &Vec<Vec<f64>>) -> (f64, Vec<usize>) {
+    let n = dist.len();
+    assert!(n >= 1);
+    if n == 1 {
+        return (0.0, vec![0, 0]);
+    }
+
+    let full_mask = (1usize << n) - 1;
+    let size = 1usize << n;
+
+    // dp[mask * n + j] = minimum cost to reach subset `mask`, ending at city j
+    let mut dp = vec![INFINITY; size * n];
+    let mut parent = vec![usize::MAX; size * n]; // store previous city index
+
+    // start at city 0
+    let start_mask = 1usize << 0;
+    dp[start_mask * n + 0] = 0.0;
+
+    for mask in 0usize..size {
+        // only consider masks that include start (city 0)
+        if (mask & start_mask) == 0 {
+            continue;
+        }
+        for j in 0usize..n {
+            if (mask & (1usize << j)) == 0 {
+                continue; // j not in mask
+            }
+            let cur_cost = dp[mask * n + j];
+            if cur_cost.is_infinite() {
+                continue;
+            }
+            // try go to k not in mask
+            for k in 0usize..n {
+                if (mask & (1usize << k)) != 0 {
+                    continue;
+                }
+                let next_mask = mask | (1usize << k);
+                let next_idx = next_mask * n + k;
+                let cand = cur_cost + dist[j][k];
+                if cand < dp[next_idx] {
+                    dp[next_idx] = cand;
+                    parent[next_idx] = j;
+                }
+            }
+        }
+    }
+
+    // close tour: from some last city j back to 0
+    let mut best_cost = INFINITY;
+    let mut last_city = usize::MAX;
+    for j in 0usize..n {
+        if j == 0 { continue; }
+        let cost = dp[full_mask * n + j];
+        if cost.is_infinite() { continue; }
+        let total = cost + dist[j][0];
+        if total < best_cost {
+            best_cost = total;
+            last_city = j;
+        }
+    }
+
+    // reconstruct path
+    let mut tour = Vec::new();
+    if last_city == usize::MAX {
+        // no tour found (shouldn't happen for fully connected graphs)
+        return (INFINITY, tour);
+    }
+
+    // walk back parents
+    let mut mask = full_mask;
+    let mut cur = last_city;
+    while mask != start_mask {
+        tour.push(cur);
+        let idx = mask * n + cur;
+        let p = parent[idx];
+        if p == usize::MAX { break; } // safety
+        mask &= !(1usize << cur);
+        cur = p;
+    }
+    tour.push(0); // start
+    tour.reverse();
+    // make it a cycle: append start at end
+    let mut cycle = tour.clone();
+    cycle.push(0);
+
+    (best_cost, cycle)
+}
+
+/// Simple nearest neighbor heuristic starting from city 0.
+/// Returns (cost, path_cycle)
+fn nearest_neighbor(dist: &Vec<Vec<f64>>) -> (f64, Vec<usize>) {
+    let n = dist.len();
+    if n == 0 { return (0.0, vec![]); }
+    if n == 1 { return (0.0, vec![0, 0]); }
+
+    let mut visited = vec![false; n];
+    let mut path = vec![0usize];
+    visited[0] = true;
+    let mut cur = 0usize;
+    let mut cost = 0.0;
+
+    for _ in 1..n {
+        let mut next = None;
+        let mut best = INFINITY;
+        for j in 0usize..n {
+            if !visited[j] && dist[cur][j] < best {
+                best = dist[cur][j];
+                next = Some(j);
+            }
+        }
+        let nxt = next.expect("graph should be connected");
+        visited[nxt] = true;
+        path.push(nxt);
+        cost += dist[cur][nxt];
+        cur = nxt;
+    }
+    // return to start
+    cost += dist[cur][0];
+    let mut cycle = path.clone();
+    cycle.push(0);
+    (cost, cycle)
+}
+
+fn main() {
+    // サンプル距離行列（完全グラフ、対称）
+    // 4 都市の例：0,1,2,3
+    let dist: Vec<Vec<f64>> = vec![
+        vec![0.0, 10.0, 15.0, 20.0],
+        vec![10.0, 0.0, 35.0, 25.0],
+        vec![15.0, 35.0, 0.0, 30.0],
+        vec![20.0, 25.0, 30.0, 0.0],
+    ];
+
+    println!("Distance matrix:");
+    for row in &dist {
+        println!("{:?}", row);
+    }
+
+    // 近似解
+    let (nn_cost, nn_path) = nearest_neighbor(&dist);
+    println!("\nNearest Neighbor heuristic:");
+    println!("  cost = {:.3}", nn_cost);
+    println!("  path = {:?}", nn_path);
+
+    // 正確解（Held-Karp）
+    let (opt_cost, opt_path) = held_karp(&dist);
+    println!("\nHeld-Karp exact solution:");
+    println!("  cost = {:.3}", opt_cost);
+    println!("  path = {:?}", opt_path);
+}
